@@ -10,4 +10,4 @@ data/data.water: run_packmol.py
 	python $<
 
 %.cpython-37m-x86_64-linux-gnu.so: %.f90
-	f2py -c -m $* -DF2PY_REPORT_ON_ARRAY_COPY --opt="-O3 -fopenmp" $<
+	f2py -c -m $* -DF2PY_REPORT_ON_ARRAY_COPY --opt="-fcheck=all -O3 -fopenmp" $<

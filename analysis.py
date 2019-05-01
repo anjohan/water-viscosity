@@ -25,19 +25,31 @@ press = np.column_stack((pxy, pxz, pyz)) * 1e5
 
 skip = 20000
 interval_length = 20000
-interval_distance = 20000
+interval_distance = 2000
+num_intervals = 3 * (press.shape[0] - interval_length + 1) // interval_distance
 
 press = np.asfortranarray(press[skip:, :])
-last_possible_start_index = press.shape[1] - interval_length
 
-autocorr, viscosity, stddev = np.zeros((3, interval_length))
+mean_autocorr, mean_viscosity, stddev_viscosity = np.zeros((3, interval_length))
+autocorrs = np.zeros((interval_length, num_intervals), order="F")
+viscosities = np.zeros((interval_length, num_intervals), order="F")
 
 t0 = time.time()
-calc_autocorr(press, autocorr, viscosity, stddev, interval_length, press.shape[0])
+calc_autocorr(
+    press,
+    autocorrs,
+    viscosities,
+    mean_autocorr,
+    mean_viscosity,
+    stddev_viscosity,
+    interval_length,
+    interval_distance,
+    press.shape[0],
+)
 print(f"Loop time: {time.time() - t0}")
 
-viscosity *= V / (k_B * T) * 0.5e-15
-stddev *= V / (k_B * T) * 0.5e-15
+mean_viscosity *= V / (k_B * T) * 0.5e-15
+stddev_viscosity *= V / (k_B * T) * 0.5e-15
 
 t = np.arange(interval_length) * 5e-4
 plt.style.use("ggplot")
@@ -45,16 +57,17 @@ plt.subplots(2, 1, sharex=True)
 plt.subplot(2, 1, 1)
 plt.xlabel("t [ps]")
 plt.ylabel(r"$\langle P_{ij}(t)P_{ij}(0)\rangle$ [Pa$^2$]")
-plt.plot(t, autocorr)
+plt.plot(t, mean_autocorr)
 plt.subplot(2, 1, 2)
 plt.xlabel("t [ps]")
 plt.ylabel(
     r"$\eta(t) = \frac{V}{k_\mathrm{B}T}\int_0^t\langle P_{ij}(t')P_{ij}(0)\rangle\,\mathrm{d}t'$ [Pa$\,$s]"
 )
-plt.errorbar(t[::10], viscosity[::10], stddev[::10])
+# plt.errorbar(t, mean_viscosity, stddev_viscosity)
+plt.plot(t, mean_viscosity)
 plt.tight_layout()
 plt.savefig("data/corr_press.png", bbox_inches="tight")
 plt.show()
 
-np.savetxt("data/corr.dat", np.column_stack((t, autocorr)))
-np.savetxt("data/viscosity.dat", np.column_stack((t, viscosity)))
+# np.savetxt("data/corr.dat", np.column_stack((t, autocorr)))
+# np.savetxt("data/viscosity.dat", np.column_stack((t, viscosity)))
