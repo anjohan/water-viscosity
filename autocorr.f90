@@ -4,7 +4,7 @@ module mod_autocorr
     contains
         subroutine calc_autocorr(pressure, autocorrs, viscosities, mean_autocorr, mean_viscosity, stddev_viscosity, &
                                  window_length, window_distance, num_samples)
-            integer, intent(in) :: window_length, num_samples, window_distance
+            integer, intent(in) :: window_length, window_distance, num_samples
             double precision, intent(in) :: pressure(num_samples, 3)
             double precision, intent(inout) :: mean_autocorr(window_length), mean_viscosity(window_length), &
                                                stddev_viscosity(window_length)
