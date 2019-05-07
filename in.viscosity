@@ -26,4 +26,4 @@ fix 1 all nvt temp 300.0 300.0 1.0
 
 log data/log.viscosity
 reset_timestep 0
-run 10000000
+run 30000000

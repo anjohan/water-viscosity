@@ -2,26 +2,26 @@ module mod_autocorr
     implicit none
 
     contains
-        subroutine calc_autocorr(pressure, autocorrs, viscosities, mean_autocorr, mean_viscosity, stddev_viscosity, &
+        subroutine calc_autocorr(pressure, mean_autocorr, mean_viscosity, stddev_viscosity, &
                                  window_length, window_distance, num_samples)
             integer, intent(in) :: window_length, window_distance, num_samples
             double precision, intent(in) :: pressure(num_samples, 3)
-            double precision, intent(inout) :: mean_autocorr(window_length), mean_viscosity(window_length), &
+            double precision, intent(inout) :: mean_autocorr(window_length), &
+                                               mean_viscosity(window_length), &
                                                stddev_viscosity(window_length)
-            double precision, intent(inout), dimension(window_length, 3*(num_samples - window_length + 1)/window_distance) &
-                                            :: autocorrs, viscosities
+
+            double precision :: tmp_corr(window_length)
 
             integer :: axis, start_index, num_windows, i
 
-            num_windows = size(autocorrs, 2)
+            num_windows = 3*(num_samples - window_length + 1) / window_distance
 
-            !$omp parallel do private(axis, i, start_index) reduction(+:mean_autocorr) collapse(2)
+            !$omp parallel do private(axis, i, start_index, tmp_corr) reduction(+:mean_autocorr) collapse(2)
             do axis = 1, 3
                 do i = 1, num_windows/3
                     start_index = (i-1)*window_distance + 1
-                    autocorrs(:, 3*(i-1)+axis) = pressure(start_index, axis)*pressure(start_index:start_index+window_length-1, axis)
-                    viscosities(:, 3*(i-1)+axis) = cumsum(autocorrs(:, 3*(i-1)+axis))
-                    mean_autocorr(:) = mean_autocorr(:) + autocorrs(:, 3*(i-1)+axis)
+                    tmp_corr = pressure(start_index, axis)*pressure(start_index:start_index+window_length-1, axis)
+                    mean_autocorr(:) = mean_autocorr(:) + tmp_corr(:)
                 end do
             end do
             !$omp end parallel do
@@ -30,10 +30,12 @@ module mod_autocorr
 
             mean_viscosity(:) = cumsum(mean_autocorr)
 
-            !$omp parallel do private(axis, i) reduction(+:stddev_viscosity) collapse(2)
+            !$omp parallel do private(axis, i, tmp_corr, start_index) reduction(+:stddev_viscosity) collapse(2)
             do axis = 1, 3
                 do i = 1, num_windows/3
-                    stddev_viscosity(:) = stddev_viscosity(:) + (viscosities(:, 3*(i-1)+axis) - mean_viscosity)**2
+                    start_index = (i-1)*window_distance + 1
+                    tmp_corr = pressure(start_index, axis)*pressure(start_index:start_index+window_length-1, axis)
+                    stddev_viscosity(:) = stddev_viscosity(:) + (cumsum(tmp_corr) - mean_viscosity)**2
                 end do
             end do
             !$omp end parallel do
