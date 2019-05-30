@@ -8,14 +8,14 @@ import autocorr
 calc_autocorr = autocorr.mod_autocorr.calc_autocorr
 
 density = 0.0335
-N = 2000
+N = 6000
 L = (N / density) ** (1.0 / 3) * 1e-10
 V = L ** 3
 T = 300.0
 k_B = 1.38e-23
 
 t0 = time.time()
-data = find_data("data/log.viscosity")
+data = find_data("15ns_data/log.viscosity")
 print(f"Read time: {time.time() - t0}")
 
 step = data["Step"]
@@ -69,10 +69,11 @@ plt.savefig("data/corr_press.png", bbox_inches="tight")
 plt.show()
 
 np.savetxt(
-    "/home/anders/master/data/viscosity/corr.dat", np.column_stack((t, mean_autocorr))
+    "/home/anders/master/data/viscosity/corr_367.dat",
+    np.column_stack((t, mean_autocorr)),
 )
 np.savetxt(
-    "/home/anders/master/data/viscosity/viscosity.dat",
+    "/home/anders/master/data/viscosity/viscosity_367.dat",
     np.column_stack((t, 1e3 * mean_viscosity, 1e3 * stddev_viscosity)),
 )
 

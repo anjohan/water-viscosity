@@ -3,7 +3,7 @@ import sys
 import numpy as np
 
 density = 0.0335
-N = 2000
+N = 6000
 L = (N / density) ** (1.0 / 3)
 
 packmol_script = f"""
@@ -39,7 +39,7 @@ np.savetxt(
     header=f"""created by me
 
 {3*N} atoms
-3 atom types
+2 atom types
 
 0 {L} xlo xhi
 0 {L} ylo yhi
@@ -47,9 +47,8 @@ np.savetxt(
 
 Masses
 
-1 28.08
-2 15.9994
-3 1.00794
+1 15.9994
+2 1.00794
 
 Atoms
 """,

@@ -1,7 +1,7 @@
 units metal
 boundary p p p
 atom_style atomic
-read_data data/data.minimised
+read_data data/data.water
 
 pair_style vashishta
 pair_coeff	* * H2O.vashishta O H
@@ -14,17 +14,6 @@ thermo 1
 thermo_style custom step time temp press etotal pxy pxz pyz spcpu cpuremain
 
 timestep 0.0005
+minimize 1e-6 1e-6 1000 1000
 
-velocity all create 500.0 277385 mom yes loop geom
-
-dump mydump all custom 100000 data/dump.viscosity.bin id type x y z vx vy vz
-
-fix 1 all nvt temp 500.0 367.0 1.0
-
-run 2000
-
-fix 1 all nvt temp 367.0 367.0 1.0
-
-log data/log.viscosity
-reset_timestep 0
-run 30000000
+write_data data/data.minimised
