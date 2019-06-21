@@ -15,7 +15,7 @@ T = 300.0
 k_B = 1.38e-23
 
 t0 = time.time()
-data = find_data("15ns_data/log.viscosity")
+data = find_data("data/log.viscosity_300")
 print(f"Read time: {time.time() - t0}")
 
 step = data["Step"]
@@ -67,15 +67,15 @@ plt.fill_between(
 plt.tight_layout()
 plt.savefig("data/corr_press.png", bbox_inches="tight")
 plt.show()
-
-np.savetxt(
-    "/home/anders/master/data/viscosity/corr_367.dat",
-    np.column_stack((t, mean_autocorr)),
-)
-np.savetxt(
-    "/home/anders/master/data/viscosity/viscosity_367.dat",
-    np.column_stack((t, 1e3 * mean_viscosity, 1e3 * stddev_viscosity)),
-)
-
-estimate_step = 2000
-print(mean_viscosity[estimate_step], stddev_viscosity[estimate_step])
+#
+# np.savetxt(
+#     "/home/anders/master/data/viscosity/corr_367.dat",
+#     np.column_stack((t, mean_autocorr)),
+# )
+# np.savetxt(
+#     "/home/anders/master/data/viscosity/viscosity_367.dat",
+#     np.column_stack((t, 1e3 * mean_viscosity, 1e3 * stddev_viscosity)),
+# )
+#
+# estimate_step = 2000
+# print(mean_viscosity[estimate_step], stddev_viscosity[estimate_step])
